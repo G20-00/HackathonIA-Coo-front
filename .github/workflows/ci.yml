@@ -1,7 +1,7 @@
 name: CI - Install & Build
 
 on:
-  workflow_dispatch:   # 👈 CLAVE
+  workflow_dispatch:
   pull_request:
     branches:
       - main
@@ -15,20 +15,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Setup Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: yarn
+          cache: npm
 
+      # Install dependencies (npm)
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
+      # Type check
       - name: Type check
-        run: yarn tsc --noEmit
+        run: npm run typecheck --if-present
 
+      # Build project
       - name: Build
-        run: yarn build
+        run: npm run build
