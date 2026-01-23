@@ -11,11 +11,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import FilterBar, { FilterState } from '@/components/marketplace/FilterBar';
 import ServiceCard, { Service } from '@/components/marketplace/ServiceCard';
 
 export default function TiendaPage() {
+  const router = useRouter();
   const [cartItems, setCartItems] = useState(0);
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -155,7 +157,14 @@ export default function TiendaPage() {
    */
   const handleViewDetail = (service: Service) => {
     console.log('Ver detalle:', service);
-    // TODO: Navegar a página de detalle o abrir modal
+    // Navegar a la página de detalle según el servicio
+    // Por ahora solo Seguro Hogar tiene página de detalle
+    if (service.id === '1') {
+      router.push('/dashboard/tienda/seguro-hogar');
+    } else {
+      // TODO: Crear páginas de detalle para otros servicios
+      console.log('Página de detalle pendiente para:', service.name);
+    }
   };
 
   /**
