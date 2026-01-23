@@ -12,6 +12,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import ServiceHeader from '@/components/service/ServiceHeader';
 import AIRecommendationBanner from '@/components/service/AIRecommendationBanner';
@@ -21,6 +22,8 @@ import SummaryCard from '@/components/service/SummaryCard';
 import FeatureList from '@/components/service/FeatureList';
 
 export default function ServiceDetailPage() {
+  const router = useRouter();
+  
   // Estado del formulario
   const [formData, setFormData] = useState({
     propertyType: 'casa',
@@ -44,15 +47,17 @@ export default function ServiceDetailPage() {
    */
   const handleAddToCart = () => {
     console.log('Agregado al carrito:', formData);
-    // TODO: Implementar lógica de carrito
+    // TODO: Implementar lógica de carrito real
+    alert('✓ Producto agregado al carrito');
   };
 
   /**
-   * Procede a compra
+   * Procede a compra - Navega al checkout
    */
   const handleBuy = () => {
-    console.log('Comprando:', formData);
-    // TODO: Implementar proceso de compra
+    console.log('Navegando al checkout con:', formData);
+    // TODO: Pasar datos del formulario al checkout vía state/context
+    router.push('/dashboard/checkout');
   };
 
   // Datos mock del servicio
