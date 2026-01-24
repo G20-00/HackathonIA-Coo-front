@@ -17,6 +17,19 @@ import FilterBar, { FilterState } from '@/components/marketplace/FilterBar';
 import ServiceCard, { Service } from '@/components/marketplace/ServiceCard';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
+const BACKEND_BASE_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8081/api';
+const PREFERENCES_PATH =
+  process.env.NEXT_PUBLIC_MERCADOPAGO_PREFERENCES_PATH ?? '/api/mercadopago/preferences';
+const DEFAULT_PAYER_EMAIL =
+  process.env.NEXT_PUBLIC_MERCADOPAGO_PAYER_EMAIL ?? 'test@testuser.com';
+const BACKEND_JWT = process.env.NEXT_PUBLIC_BACKEND_JWT ?? '';
+
+const parsePriceToNumber = (price: string): number => {
+  const numeric = price.replace(/[^\d]/g, '');
+  return Number(numeric);
+};
+
 export default function TiendaPage() {
   const router = useRouter();
   const [cartItems, setCartItems] = useState(0);
@@ -171,10 +184,61 @@ export default function TiendaPage() {
   /**
    * Maneja compra del servicio
    */
-  const handleBuy = (service: Service) => {
-    console.log('Comprar:', service);
-    setCartItems((prev) => prev + 1);
-    // TODO: Agregar al carrito real
+  const handleBuy = async (service: Service) => {
+    try {
+      const payerEmail = DEFAULT_PAYER_EMAIL;
+
+      const backendUrl = new URL(PREFERENCES_PATH, BACKEND_BASE_URL).toString();
+      const priceNumber = parsePriceToNumber(service.price);
+      if (!priceNumber) {
+        throw new Error('Precio inválido');
+      }
+
+      const origin = window.location.origin;
+      const payload = {
+        items: [
+          {
+            title: service.name,
+            quantity: 1,
+            unitPrice: priceNumber,
+            currencyId: 'COP',
+          },
+        ],
+        payerEmail,
+        backUrls: {
+          success: `${origin}/pago-exitoso`,
+          failure: `${origin}/pago-fallido`,
+          pending: `${origin}/pago-pendiente`,
+        },
+        externalReference: `ORDER-${Date.now()}`,
+      };
+
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(BACKEND_JWT ? { Authorization: `Bearer ${BACKEND_JWT}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Backend error: ${errorText || response.status}`);
+      }
+
+      const data = await response.json();
+      const checkoutUrl = data?.sandbox_init_point || data?.init_point;
+      if (!checkoutUrl) {
+        throw new Error('No se recibió init_point');
+      }
+
+      setCartItems((prev) => prev + 1);
+      window.location.href = checkoutUrl;
+    } catch (error) {
+      console.error('Error iniciando pago:', error);
+      alert('No se pudo iniciar el pago. Revisa la consola y el backend.');
+    }
   };
 
   /**
