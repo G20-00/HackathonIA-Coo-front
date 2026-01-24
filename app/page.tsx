@@ -16,15 +16,19 @@ import InputField from '@/components/ui/InputField';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import SecondaryButton from '@/components/ui/SecondaryButton';
 import InfoCard from '@/components/ui/InfoCard';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   // Router para navegación
   const router = useRouter();
   
+  // Hook de autenticación
+  const { login } = useAuth();
+  
   // Estados del formulario
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [loading, setLoading] = useState(false);
 
   /**
@@ -39,7 +43,7 @@ export default function LoginPage() {
    * Valida el formulario antes de enviar
    */
   const validateForm = (): boolean => {
-    const newErrors: { email?: string; password?: string } = {};
+    const newErrors: { email?: string; password?: string; general?: string } = {};
 
     // Validar email
     if (!email) {
@@ -70,17 +74,31 @@ export default function LoginPage() {
       return;
     }
 
-    // Simular proceso de login
+    // Limpiar errores previos
+    setErrors({});
     setLoading(true);
     
-    // TODO: Implementar autenticación real
-    setTimeout(() => {
-      console.log('Login attempt:', { email, password });
-      setLoading(false);
+    try {
+      // Llamar al servicio de login
+      await login(email, password);
       
-      // Redirigir al dashboard después de login exitoso
-      router.push('/dashboard');
-    }, 2000);
+      // Obtener usuario del localStorage para verificar rol
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      // Redirigir según el rol del usuario
+      if (user?.role === 'ADMIN' || user?.rol === 'ADMIN') {
+        router.push('/dashboard');
+      } else {
+        router.push('/dashboard/tienda');
+      }
+    } catch (error) {
+      // Manejar errores de autenticación
+      const errorMessage = error instanceof Error ? error.message : 'Error al iniciar sesión';
+      setErrors({ general: errorMessage });
+    } finally {
+      setLoading(false);
+    }
   };
 
   /**
@@ -120,6 +138,18 @@ export default function LoginPage() {
       >
         {/* Formulario de login */}
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Mensaje de error general */}
+          {errors.general && (
+            <div className="rounded-lg bg-red-50 p-4 border border-red-200">
+              <div className="flex items-center gap-2">
+                <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm font-medium text-red-800">{errors.general}</p>
+              </div>
+            </div>
+          )}
+
           {/* Campo de email */}
           <InputField
             label="Correo electrónico"
@@ -193,10 +223,7 @@ export default function LoginPage() {
           {/* Botón secundario - Crear cuenta */}
           <SecondaryButton
             type="button"
-            onClick={() => {
-              // TODO: Navegar a página de registro
-              console.log('Navegar a crear cuenta');
-            }}
+            onClick={() => router.push('/register')}
           >
             Crear cuenta
           </SecondaryButton>

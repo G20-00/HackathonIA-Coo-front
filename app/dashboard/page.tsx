@@ -16,6 +16,7 @@ import PrimaryButton from '@/components/ui/PrimaryButton';
 import ActionCard from '@/components/ui/ActionCard';
 import StatusBadge from '@/components/ui/StatusBadge';
 import DataTable, { TableColumn, TableAction } from '@/components/ui/DataTable';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function DashboardPage() {
   const [aiQuery, setAiQuery] = useState('');
@@ -155,9 +156,10 @@ export default function DashboardPage() {
   ];
 
   return (
-    <DashboardLayout>
-      {/* Título de la página */}
-      <div className="mb-6">
+    <ProtectedRoute requiredRole="ADMIN">
+      <DashboardLayout>
+        {/* Título de la página */}
+        <div className="mb-6">
         <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
         <p className="mt-1 text-sm text-slate-600">
           Bienvenido de nuevo, aquí está tu resumen de actividad
@@ -327,5 +329,6 @@ export default function DashboardPage() {
         />
       </div>
     </DashboardLayout>
+    </ProtectedRoute>
   );
 }

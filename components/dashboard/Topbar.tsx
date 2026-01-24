@@ -11,20 +11,33 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import SearchInput from '@/components/ui/SearchInput';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Topbar() {
   const router = useRouter();
+  const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   /**
    * Maneja el cierre de sesión
    */
   const handleLogout = () => {
-    // TODO: Limpiar tokens y estado de sesión
-    console.log('Cerrando sesión...');
-    
-    // Redirigir al login
+    logout();
     router.push('/');
+  };
+
+  // Obtener iniciales del usuario
+  const getInitials = () => {
+    if (!user) return 'U';
+    const first = user.firstName?.[0] || '';
+    const last = user.lastName?.[0] || '';
+    return (first + last).toUpperCase() || 'U';
+  };
+
+  // Obtener nombre completo
+  const getFullName = () => {
+    if (!user) return 'Usuario';
+    return user.nombre || `${user.firstName} ${user.lastName}` || 'Usuario';
   };
 
   return (
@@ -63,13 +76,17 @@ export default function Topbar() {
             >
               {/* Avatar */}
               <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
-                <span className="text-xs font-semibold text-white">JD</span>
+                <span className="text-xs font-semibold text-white">
+                  {getInitials()}
+                </span>
               </div>
               
               {/* Nombre y rol */}
               <div className="text-left hidden sm:block">
-                <p className="text-sm font-medium text-slate-900">Juan Pérez</p>
-                <p className="text-xs text-slate-500">Usuario</p>
+                <p className="text-sm font-medium text-slate-900">
+                  {getFullName()}
+                </p>
+                <p className="text-xs text-slate-500">{user?.role || user?.rol || 'Usuario'}</p>
               </div>
 
               {/* Icono dropdown */}

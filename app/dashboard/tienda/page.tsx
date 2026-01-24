@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import FilterBar, { FilterState } from '@/components/marketplace/FilterBar';
 import ServiceCard, { Service } from '@/components/marketplace/ServiceCard';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function TiendaPage() {
   const router = useRouter();
@@ -185,10 +186,11 @@ export default function TiendaPage() {
   };
 
   return (
-    <DashboardLayout>
-      {/* Header de la página */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Tienda</h1>
+    <ProtectedRoute>
+      <DashboardLayout>
+        {/* Header de la página */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-slate-900">Tienda</h1>
         <p className="mt-1 text-sm text-slate-600">
           Explora y adquiere los mejores servicios para tu bienestar y protección
         </p>
@@ -252,5 +254,6 @@ export default function TiendaPage() {
         </div>
       )}
     </DashboardLayout>
+    </ProtectedRoute>
   );
 }
