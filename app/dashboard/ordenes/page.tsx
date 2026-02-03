@@ -191,7 +191,7 @@ export default function OrdenesPage() {
               <div className="flex items-center justify-between border-t border-slate-200 pt-4">
                 <span className="text-base font-semibold text-slate-900">Total</span>
                 <span className="text-xl font-bold text-blue-600">
-                  ${order.total.toLocaleString('es-CO')}
+                  ${(order.total || order.totalAmount || 0).toLocaleString('es-CO')}
                 </span>
               </div>
 

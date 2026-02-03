@@ -194,7 +194,7 @@ export default function OrdenDetallePage() {
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold text-slate-900">Total</span>
                 <span className="text-2xl font-bold text-blue-600">
-                  ${order.total.toLocaleString('es-CO')}
+                  ${(order.total || order.totalAmount || 0).toLocaleString('es-CO')}
                 </span>
               </div>
             </div>
