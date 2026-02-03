@@ -11,13 +11,17 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import ActionCard from '@/components/ui/ActionCard';
 import StatusBadge from '@/components/ui/StatusBadge';
 import DataTable, { TableColumn, TableAction } from '@/components/ui/DataTable';
+import { useToast } from '@/lib/hooks/useToast';
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const toast = useToast();
   const [aiQuery, setAiQuery] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -26,11 +30,11 @@ export default function DashboardPage() {
    */
   const handleAIQuery = () => {
     if (!aiQuery.trim()) return;
-    
+
     setIsProcessing(true);
     // Simular procesamiento de IA
     setTimeout(() => {
-      console.log('Consulta IA:', aiQuery);
+      toast.success(`Consulta procesada: "${aiQuery}"`);
       setIsProcessing(false);
       setAiQuery('');
     }, 2000);
@@ -134,7 +138,7 @@ export default function DashboardPage() {
     {
       label: 'Ver',
       variant: 'primary',
-      onClick: (row) => console.log('Ver:', row),
+      onClick: (row) => toast.info(`Detalles de: ${row.detalle}`),
       icon: (
         <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -145,7 +149,7 @@ export default function DashboardPage() {
     {
       label: 'Descargar',
       variant: 'secondary',
-      onClick: (row) => console.log('Descargar:', row),
+      onClick: (row) => toast.success(`Descargando: ${row.detalle}`),
       icon: (
         <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -204,7 +208,7 @@ export default function DashboardPage() {
           title="Comprar"
           description="Explora y adquiere nuevos planes"
           variant="blue"
-          onClick={() => console.log('Ir a Tienda')}
+          onClick={() => router.push('/dashboard/tienda')}
           icon={
             <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -216,7 +220,7 @@ export default function DashboardPage() {
           title="Simular"
           description="Prueba planes con IA"
           variant="purple"
-          onClick={() => console.log('Ir a Simulador')}
+          onClick={() => toast.info('Simulador próximamente')}
           icon={
             <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -228,7 +232,7 @@ export default function DashboardPage() {
           title="Alianzas"
           description="Descuentos y beneficios"
           variant="green"
-          onClick={() => console.log('Ir a Alianzas')}
+          onClick={() => toast.info('Alianzas próximamente')}
           icon={
             <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
@@ -237,13 +241,13 @@ export default function DashboardPage() {
         />
 
         <ActionCard
-          title="Pagar"
-          description="Gestiona tus facturas"
+          title="Mis Órdenes"
+          description="Historial de compras"
           variant="orange"
-          onClick={() => console.log('Ir a Pagos')}
+          onClick={() => router.push('/dashboard/ordenes')}
           icon={
             <svg className="h-6 w-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           }
         />
