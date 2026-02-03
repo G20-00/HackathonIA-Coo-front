@@ -16,15 +16,19 @@ import InputField from '@/components/ui/InputField';
 import PrimaryButton from '@/components/ui/PrimaryButton';
 import SecondaryButton from '@/components/ui/SecondaryButton';
 import InfoCard from '@/components/ui/InfoCard';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function LoginPage() {
   // Router para navegación
   const router = useRouter();
-  
+
+  // Hook de autenticación
+  const { login } = useAuth();
+
   // Estados del formulario
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [loading, setLoading] = useState(false);
 
   /**
@@ -70,17 +74,28 @@ export default function LoginPage() {
       return;
     }
 
-    // Simular proceso de login
+    // Limpiar error general previo
+    setErrors((prev) => ({ ...prev, general: undefined }));
     setLoading(true);
-    
-    // TODO: Implementar autenticación real
-    setTimeout(() => {
-      console.log('Login attempt:', { email, password });
-      setLoading(false);
-      
+
+    try {
+      // Autenticación con el backend
+      await login({ email, password });
+
       // Redirigir al dashboard después de login exitoso
       router.push('/dashboard');
-    }, 2000);
+    } catch (error: any) {
+      console.error('Error al iniciar sesión:', error);
+
+      // Mostrar error al usuario
+      const errorMessage =
+        error?.response?.data?.message ||
+        'Error al iniciar sesión. Verifica tus credenciales.';
+
+      setErrors((prev) => ({ ...prev, general: errorMessage }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   /**
@@ -120,6 +135,13 @@ export default function LoginPage() {
       >
         {/* Formulario de login */}
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Mensaje de error general */}
+          {errors.general && (
+            <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+              <p className="text-sm text-red-800">{errors.general}</p>
+            </div>
+          )}
+
           {/* Campo de email */}
           <InputField
             label="Correo electrónico"
